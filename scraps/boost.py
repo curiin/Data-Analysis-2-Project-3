@@ -18,9 +18,9 @@ def random_isotropic_rotation(pion_fv):  # ~Marsaglia method
 
 
 def boost(fv):
-    beta = kaon_v/c
+    beta = kaon_v / c
     gamma = 1 / sqrt(1 - beta * beta)
-    LT = np.array([[gamma, 0, 0, beta * gamma * c],
+    LT = np.array([[gamma, 0, 0, beta * gamma * c], # from appendix with *c, /c added to match the units
                    [0, 1, 0, 0],
                    [0, 0, 1, 0],
                    [beta * gamma / c, 0, 0, gamma]])
@@ -28,27 +28,35 @@ def boost(fv):
     return LT @ fv
 
 
-# assumed input: pion four-vector:
-
-kaon_v = 0.4 * c # arbitrary
-pion_v = 0.7 * c # arbitrary
-pion_m = 139.57039 *1e6 # eV/c**2 from pdg
+kaon_v = 0.4 * c  # arbitrary
+pion_v = 0.7 * c  # arbitrary
+pion_m = 139.57039 * 1e6  # eV/c**2 for +pion from pdg
 
 pion_p = pion_m * pion_v
-pion_E = sqrt(pion_m * c * c * pion_m * c * c + pion_p * c * pion_p * c)
-pion_fv = np.array([pion_E, 0, 0, pion_p])
+pion_E = sqrt(pion_m * c * c * pion_m * c * c + pion_p * c * pion_p * c)  # E = sqrt( (mc**2)**2 + (p*c)**2)
+pion_fv = np.array([pion_E, 0, 0, pion_p])  # four-vector parallel to z-axis
+
+'''
+the four-vector is used as basis to generate data_len vectors according to a uniform distribution,
+the data_len vectors are then all boosted with the matrix from the script
+'''
 
 data_len = 2000
 pions = np.zeros((data_len, 4))
-
-fig, ax = plt.subplots(1, 2)
 
 for i in range(data_len):
     v = boost(random_isotropic_rotation(pion_fv))
     pions[i] = v
 
-    ax[0].plot((0, v[3]), (0, v[2]), lw=0.2, marker=".", ms = 3, color="orange", alpha=0.5)
-    ax[1].plot((0, v[3]), (0, v[1]), lw=0.2, marker=".", ms = 3, color="green", alpha=0.5)
+'''
+the final output is the pions list, from that we need to generate 0pions and then rotate everything
+to simulate the finite angular divergence of the kaons
+'''
+
+fig, ax = plt.subplots(1, 2)
+for v in pions:
+    ax[0].plot((0, v[3]), (0, v[2]), lw=0.2, marker=".", ms=3, color="orange", alpha=0.5)
+    ax[1].plot((0, v[3]), (0, v[1]), lw=0.2, marker=".", ms=3, color="green", alpha=0.5)
 
 ax[0].grid()
 ax[1].grid()
@@ -62,5 +70,3 @@ ax[0].set_aspect("equal")
 ax[1].set_aspect("equal")
 fig.tight_layout()
 plt.show()
-
-# rotate pions after boosting instead of rotating kaons prior to boosting
