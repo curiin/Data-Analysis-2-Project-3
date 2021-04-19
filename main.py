@@ -96,8 +96,19 @@ def number_of_detections(distance):
         indices_positive = [i for i, x in enumerate(results_positive) if x == 1]
         indices_neutral = [i for i, x in enumerate(results_neutral) if x == 1]
         success = [x for x in indices_positive if x in indices_neutral]
+    else:
+        success = []
     return len(success)
 
 
 optimal_distance = scipy.optimize.minimize(number_of_detections,x0=0.1) #this should be maximise but I don't know how
 print(optimal_distance["fun"])
+
+
+N = 100
+distances = np.linspace(1, 10, N)
+results = 1*distances
+for i, d in enumerate(distances):
+    results[i] = number_of_detections(d)
+plt.plot(distances, results, marker = ".", color = "orange")
+plt.show()
