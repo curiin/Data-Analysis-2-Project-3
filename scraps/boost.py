@@ -2,7 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt
 from scipy.constants import c
+from library import m_pp, m_np, m_k
 
+
+def pion_pair():
+    positive_pion_fv = random_isotropic_rotation(pion_fv)
+    neutral_pion_fv = -1*positive_pion_fv # inverting everything, so that the momenta are correct
+    neutral_pion_fv[0] = m_k*c*c - positive_pion_fv[0] # fixing energy through energy conservation
+    positive_pion_velocity = boost(positive_pion_fv)[1:]*c*c/positive_pion_fv[0] # relativistic momentum
+    neutral_pion_velocity = boost(neutral_pion_fv)[1:]*c*c/neutral_pion_fv[0]
+    return (positive_pion_velocity, neutral_pion_velocity)
 
 def random_isotropic_rotation(pion_fv):  # ~Marsaglia method
     fv = 1 * pion_fv
@@ -29,44 +38,31 @@ def boost(fv):
 
 
 kaon_v = 0.4 * c  # arbitrary
-pion_v = 0.7 * c  # arbitrary
-pion_m = 139.57039 * 1e6  # eV/c**2 for +pion from pdg
+pion_v = 0.5 * c  # arbitrary
+pion_m = m_pp  # eV/c**2 for +pion from pdg
 
 pion_p = pion_m * pion_v
 pion_E = sqrt(pion_m * c * c * pion_m * c * c + pion_p * c * pion_p * c)  # E = sqrt( (mc**2)**2 + (p*c)**2)
 pion_fv = np.array([pion_E, 0, 0, pion_p])  # four-vector parallel to z-axis
 
 '''
-the four-vector is used as basis to generate data_len vectors according to a uniform distribution,
-the data_len vectors are then all boosted with the matrix from the script
-'''
-
-data_len = 2000
-pions = np.zeros((data_len, 4))
+data_len = 100
+pions = np.zeros((data_len, 2, 3))
 
 for i in range(data_len):
-    v = boost(random_isotropic_rotation(pion_fv))
+    v = pion_pair()
     pions[i] = v
 
-'''
-the final output is the pions list, from that we need to generate 0pions and then rotate everything
-to simulate the finite angular divergence of the kaons
-'''
-
-fig, ax = plt.subplots(1, 2)
+fig, ax = plt.subplots(1, 1)
 for v in pions:
-    ax[0].plot((0, v[3]), (0, v[2]), lw=0.2, marker=".", ms=3, color="orange", alpha=0.5)
-    ax[1].plot((0, v[3]), (0, v[1]), lw=0.2, marker=".", ms=3, color="green", alpha=0.5)
+    ax.plot((0, v[0, 2]), (0, v[0, 1]), lw=0.2, marker=".", ms=3, color="orange", alpha=0.5)
+    ax.plot((0, v[1, 2]), (0, v[1, 0]), lw=0.2, marker=".", ms=3, color="green", alpha=0.5)
 
-ax[0].grid()
-ax[1].grid()
-ax[0].set_xlabel("p_z [eV]")
-ax[0].set_ylabel("p_y [eV]")
-ax[0].set_title("side_view")
-ax[1].set_xlabel("p_z [eV]")
-ax[1].set_ylabel("p_x [eV]")
-ax[1].set_title("top_view")
-ax[0].set_aspect("equal")
-ax[1].set_aspect("equal")
+ax.grid()
+ax.set_xlabel("p_z [eV]")
+ax.set_ylabel("p_y [eV]")
+ax.set_title("side_view")
+ax.set_aspect("equal")
 fig.tight_layout()
 plt.show()
+'''
