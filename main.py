@@ -26,7 +26,7 @@ average_decay_length_pion_positive = 4.188*1e3 #meters  from script
 
 average_decay_length_kaon = pion_m_positive / kaon_m * kaon_lifetime / pion_lifetime_positive * average_decay_length_pion_positive
 
-data_len = 2000
+data_len = 10000
 decay_position = np.zeros(data_len)
 positive_pion_velocity = np.zeros((data_len, 3))
 neutral_pion_velocity = np.zeros((data_len, 3))
@@ -84,13 +84,13 @@ def number_of_detections(detector_position):
     return fails    # to maximise success, we minimise fails
 
 
-optimal_distance = scipy.optimize.minimize(number_of_detections,x0=60)
+optimal_distance = scipy.optimize.minimize(number_of_detections,x0=1000)
 print(optimal_distance["fun"])
 print(optimal_distance["x"])
 
 
 N = 100
-positions = np.linspace(1, 500, N)
+positions = np.linspace(1, 1000, N)
 results = 1*positions
 for i, d in enumerate(positions):
     results[i] = number_of_detections(d)
