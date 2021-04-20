@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt
 from scipy.constants import c
-from library import m_pp, m_np, m_k
 
 
 def pion_pair():
@@ -39,7 +38,9 @@ def boost(fv):
 
 kaon_v = 0.4 * c  # arbitrary
 pion_v = 0.5 * c  # arbitrary
-pion_m = m_pp  # eV/c**2 for +pion from pdg
+pion_m = 1.349768 * 1e8  # eV/c**2 for +pion from pdg
+m_k = 4.93677 * 1e8
+m_np = 1.349768 * 1e8
 
 pion_p = pion_m * pion_v
 pion_E = sqrt(pion_m * c * c * pion_m * c * c + pion_p * c * pion_p * c)  # E = sqrt( (mc**2)**2 + (p*c)**2)
