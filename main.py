@@ -1,13 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from math import sqrt
-from scipy.constants import c
 import scipy.optimize
-
-#data = np.loadtxt('dec_lengths.txt')
-
-#plt.hist(data,bins=50)
-#plt.show()
+from scraps.boost import pion_pair
 
 
 pion_m_positive = 2.48807 * 10**(-34)   # kg, 139.57039*1e6 eV/c^2      from pdg
@@ -30,45 +24,19 @@ average_decay_length_pion_positive = 4.188*1e3 #meters  from script
 #average_decay_length_kaon = p / kaon_m / sqrt(1 - (p / kaon_m / c)**2) * kaon_lifetime
 # the new formulas give results that I think are not right
 
-p = pion_m_positive * average_decay_length_pion_positive / pion_lifetime_positive
 average_decay_length_kaon = pion_m_positive / kaon_m * kaon_lifetime / pion_lifetime_positive * average_decay_length_pion_positive
 
-pion_E_positive = sqrt((pion_m_positive*c**2)**2 + (p*c)**2)  # E = sqrt( (mc**2)**2 + (p*c)**2)
-pion_E_neutral = sqrt((pion_m_neutral*c**2)**2 + (p*c)**2)
-
-pion_fv_positive = np.array([pion_E_positive, 0, 0, p])  # four-vector parallel to z-axis
-pion_fv_neutral = np.array([pion_E_neutral, 0, 0, p])
-
-
-def random_isotropic_rotation(pion_fv):  # ~Marsaglia method
-    fv = 1 * pion_fv
-    while True:
-        a = 2 * np.random.rand() - 1
-        b = 2 * np.random.rand() - 1
-        if a * a + b * b < 1:
-            break
-    fv[1] = fv[3] * 2 * a * sqrt(1 - a * a - b * b)
-    fv[2] = fv[3] * 2 * b * sqrt(1 - a * a - b * b)
-    fv[3] = fv[3] * (1 - 2 * (a * a + b * b))
-    return fv
-
-
 data_len = 2000
-pions_positive = np.zeros((data_len, 4))
-pions_neutral = np.zeros((data_len, 4))
-velocity_pion_positive = np.zeros((data_len, 3))
-velocity_pion_neutral = np.zeros((data_len, 3))
 decay_position = np.zeros(data_len)
-
+positive_pion_velocity = np.zeros((data_len, 3))
+neutral_pion_velocity = np.zeros((data_len, 3))
 for i in range(data_len):
-    v = (random_isotropic_rotation(pion_fv_positive))
-    w = (random_isotropic_rotation(pion_fv_neutral))
-    pions_positive[i] = v
-    pions_neutral[i] = w
-    velocity_pion_positive[i] = [x / pion_m_positive for x in v][1:]
-    velocity_pion_neutral[i] = [x / pion_m_neutral for x in w][1:]
     s = np.random.exponential(average_decay_length_kaon)
     decay_position[i] = s
+    v, w = pion_pair()
+    positive_pion_velocity[i] = v
+    neutral_pion_velocity[i] = w
+# print(np.mean(decay_position)) #arithmetic mean
 
 
 def number_of_detections(detector_position):
@@ -76,14 +44,14 @@ def number_of_detections(detector_position):
     distance = np.zeros(data_len)
     for k in range(data_len):
         distance[k] = detector_position-decay_position[k]
-        if velocity_pion_positive[k][2] <= 0 and distance[k]>0:
+        if positive_pion_velocity[k][2] <= 0 and distance[k]>0:
             results_positive.append(0)
-        elif velocity_pion_positive[k][2] >= 0 and distance[k]<0:
+        elif positive_pion_velocity[k][2] >= 0 and distance[k]<0:
             results_positive.append(0)
         else:
-            t = abs(distance[k] / velocity_pion_positive[k][2])
-            dx = t * velocity_pion_positive[k][0]
-            dy = t * velocity_pion_positive[k][1]
+            t = abs(distance[k] / positive_pion_velocity[k][2])
+            dx = t * positive_pion_velocity[k][0]
+            dy = t * positive_pion_velocity[k][1]
             if dx**2+dy**2 > 4:
                 results_positive.append(0)
             else:
@@ -92,14 +60,14 @@ def number_of_detections(detector_position):
 
     results_neutral = []
     for k in range(data_len):
-        if velocity_pion_neutral[k][2] <= 0 and detector_position - decay_position[k] > 0:
+        if neutral_pion_velocity[k][2] <= 0 and detector_position - decay_position[k] > 0:
             results_positive.append(0)
-        elif velocity_pion_neutral[k][2] >= 0 and detector_position - decay_position[k] < 0:
+        elif neutral_pion_velocity[k][2] >= 0 and detector_position - decay_position[k] < 0:
             results_neutral.append(0)
         else:
-            t = abs(distance[k])/velocity_pion_neutral[k][2]
-            dx = t*velocity_pion_neutral[k][0]
-            dy = t * velocity_pion_neutral[k][1]
+            t = abs(distance[k])/neutral_pion_velocity[k][2]
+            dx = t*neutral_pion_velocity[k][0]
+            dy = t * neutral_pion_velocity[k][1]
             if dx**2+dy**2 > 4:
                 results_neutral.append(0)
             else:
@@ -116,13 +84,13 @@ def number_of_detections(detector_position):
     return fails    # to maximise success, we minimise fails
 
 
-optimal_distance = scipy.optimize.minimize(number_of_detections,x0=2000)
+optimal_distance = scipy.optimize.minimize(number_of_detections,x0=60)
 print(optimal_distance["fun"])
 print(optimal_distance["x"])
 
 
 N = 100
-positions = np.linspace(1, 1000, N)
+positions = np.linspace(1, 500, N)
 results = 1*positions
 for i, d in enumerate(positions):
     results[i] = number_of_detections(d)
