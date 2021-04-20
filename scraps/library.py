@@ -21,4 +21,6 @@ p_kaon = m_pp * d_pp / t_pp
 
 v_kaon = p_kaon*c / sqrt(c*c*m_k*m_k + p_kaon*p_kaon)
 
+v_pion = p_pion*c / sqrt(c*c*m_pp*m_pp + p_pion*p_pion)
+
 d_k = m_pp/m_k * t_k/t_pp * d_pp
