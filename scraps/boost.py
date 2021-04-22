@@ -42,7 +42,7 @@ pion_m = 1.349768 * 1e8  # eV/c**2 for +pion from pdg
 m_k = 4.93677 * 1e8
 m_np = 1.349768 * 1e8
 
-pion_p = pion_m * pion_v
+pion_p = 5.723153942711986e+16
 pion_E = sqrt(pion_m * c * c * pion_m * c * c + pion_p * c * pion_p * c)  # E = sqrt( (mc**2)**2 + (p*c)**2)
 pion_fv = np.array([pion_E, 0, 0, pion_p])  # four-vector parallel to z-axis
 
