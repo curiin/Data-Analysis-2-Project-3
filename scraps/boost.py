@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from math import sqrt
 from scipy.constants import c
 
@@ -46,7 +46,7 @@ pion_p = 5.723153942711986e+16
 pion_E = sqrt(pion_m * c * c * pion_m * c * c + pion_p * c * pion_p * c)  # E = sqrt( (mc**2)**2 + (p*c)**2)
 pion_fv = np.array([pion_E, 0, 0, pion_p])  # four-vector parallel to z-axis
 
-
+'''
 data_len = 100
 pions = np.zeros((data_len, 2, 3))
 
@@ -62,7 +62,6 @@ for i in range(data_len):
         shit +=1
 print("ratio of pions which exceed the speed of light:", round(shit/2/data_len, 2))
 
-'''
 fig, ax = plt.subplots(1, 1)
 for v in pions:
     ax.plot((0, v[0, 2]), (0, v[0, 1]), lw=0.2, marker=".", ms=3, color="orange", alpha=0.5)
