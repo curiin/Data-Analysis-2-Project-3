@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize
-from scraps.boost import pion_pair
+from boost import pion_pair
 
 
 pion_m_positive = 2.48807 * 10**(-34)   # kg, 139.57039*1e6 eV/c^2      from pdg

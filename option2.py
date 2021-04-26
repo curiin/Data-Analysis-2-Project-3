@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.optimize
-from scraps.boost import pion_pair
-from scraps.library import d_k
+from boost import pion_pair
+from library import d_k
 
 
 def data_generator(): # generates pions and decay positions
